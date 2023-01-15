@@ -1,3 +1,6 @@
+
+<img src="logo.svg" width="150" />
+
 # BNBNodes Smart Contract
 This repo contains the official bnbnodes.io Smart Contract. 
 
