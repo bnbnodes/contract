@@ -6,6 +6,7 @@ This repo contains the official bnbnodes.io Smart Contract.
 
 ## DEPLOYED AT BNB CHAIN MAINNET
 Address: `0xf50b46db152d4e29b45e29557382428622db7871`
+
 Verified on [bscscan.com](https://bscscan.com/address/0xf50b46db152d4e29b45e29557382428622db7871)
 
 
