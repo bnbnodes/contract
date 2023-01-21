@@ -3,7 +3,6 @@
 // ░▒█▄▄█░▒█░░▀█░▒█▄▄█░░░▒█░░▀█░▒█▄▄▄█░▒█▄▄█░▒█▄▄▄░▒█▄▄▄█
 
 // SPDX-License-Identifier: UNLICENSED
-// v1.0
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -395,8 +394,8 @@ contract BNBNodes is Ownable, ReentrancyGuard {
                     if (userMap[_nextReferrer].referralCount >= 2) {
                         // if (userMap[_nextReferrer].referralCount >= 2) {
                         uint256 _secondLevelDRC = (_investorAmount * SECOND_GEN_DRC) / 100;
-                        userMap[_referrerAddr].investment.directReferralCommission += _secondLevelDRC;
-                        userMap[_referrerAddr].stats.totalDirectReferralCommission += _secondLevelDRC;
+                        userMap[_nextReferrer].investment.directReferralCommission += _secondLevelDRC;
+                        userMap[_nextReferrer].stats.totalDirectReferralCommission += _secondLevelDRC;
 
                         emit directReferralCommissionEvent(
                             _investorAddr,
@@ -864,7 +863,7 @@ contract BNBNodes is Ownable, ReentrancyGuard {
 
     /// @notice function to award top sponsors after every daily round
     /// @dev called on every "startNexRound" (if more than 24hours passed from previous round)
-    /// @return _distributedAmount is the sum of the individual distributed top sponsor pool amounts 
+    /// @return _distributedAmount is the sum of the individual distributed top sponsor pool amounts
     function awardTopSponsors() private returns (uint256 _distributedAmount) {
         uint256 _totalAmount = (dailyRounds[roundID].pool * DAILY_TOP_SPONSOR_POOL_DISTRIBUTION_PERCENT) /
             100;
@@ -1064,8 +1063,11 @@ contract BNBNodes is Ownable, ReentrancyGuard {
         int256 _roiInWei;
         int256 _maxROIinWei;
         bool _isWhale;
-        // This checks whether the investment is WHALE level
-        if (userMap[_address].investment.currInvestment >= WHALE_RANK_AMOUNT) {
+        // there's no string comparison, but this checks whether the investment is WHALE level
+        if (
+            userMap[_address].investment.currInvestment >= WHALE_RANK_AMOUNT ||
+            userMap[_address].investment.currInvestmentCycle >= 4
+        ) {
             _maxROIinWei = int(userMap[_address].investment.currInvestment * 2);
             _isWhale = true;
         } else {
@@ -1087,7 +1089,12 @@ contract BNBNodes is Ownable, ReentrancyGuard {
             // incomeLimitLeft minus claimable will give the actual incomeLimitLeft value in wei
             // minus maxROIInWei will return the actual _roiInWei
             _roiInWei = _maxROIinWei - (_incomeLimitLeftInWei - _claimableInWei);
-            _roiPercentage = _roiInWei / (_maxROIinWei / 300);
+
+            if (_isWhale) {
+                _roiPercentage = _roiInWei / (_maxROIinWei / 200);
+            } else {
+                _roiPercentage = _roiInWei / (_maxROIinWei / 300);
+            }
 
             // _roiInWei;
             if (_roiInWei < 0) {
